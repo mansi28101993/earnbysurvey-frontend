@@ -1,46 +1,45 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 interface Survey {
   _id: string;
   title: string;
-  description: string;
-  category: string;
 }
 
 function Home() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // 👇 Call backend API to fetch surveys
-    fetch('https://earnbysurvey-backend.onrender.com/api/surveys')
-      .then((res) => res.json())
-      .then((data) => {
-        setSurveys(data);
+    axios.get('https://earnbysurvey-backend.onrender.com/api/surveys') // ✅ Backend API URL
+      .then(response => {
+        setSurveys(response.data);
       })
-      .catch((err) => {
-        console.error('Error fetching surveys:', err);
-        setError('Failed to fetch surveys');
+      .catch(error => {
+        console.error('Error fetching surveys:', error);
+        setError('Failed to load surveys. Please try again later.');
       });
   }, []);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">📋 Available Surveys</h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+      <h1 className="text-4xl font-bold mb-8 text-purple-700">Available Surveys 📋</h1>
 
-      {error && <p className="text-red-500">Error: {error}</p>}
+      {error && (
+        <p className="text-red-500 mb-4">{error}</p>
+      )}
 
-      <ul className="space-y-4">
-        {surveys.map((survey) => (
-          <li key={survey._id} className="p-4 border rounded shadow-md">
-            <h2 className="text-xl font-semibold">{survey.title}</h2>
-            <p className="text-gray-600">{survey.description}</p>
-            <span className="inline-block mt-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-              {survey.category}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <div className="w-full max-w-md space-y-4">
+        {surveys.length > 0 ? (
+          surveys.map((survey) => (
+            <div key={survey._id} className="p-4 bg-white rounded-lg shadow-md">
+              <h2 className="text-lg font-semibold text-gray-800">{survey.title}</h2>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">No surveys available right now.</p>
+        )}
+      </div>
     </div>
   );
 }
