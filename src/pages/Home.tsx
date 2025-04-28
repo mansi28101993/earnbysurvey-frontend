@@ -1,47 +1,41 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-interface Survey {
-  _id: string;
-  title: string;
-}
-
-function Home() {
-  const [surveys, setSurveys] = useState<Survey[]>([]);
-  const [error, setError] = useState('');
+const Home = () => {
+  const [surveys, setSurveys] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('https://earnbysurvey-backend.onrender.com/api/surveys') // ✅ Backend API URL
+    axios.get('https://earnbysurvey-backend.onrender.com/api/surveys')
       .then(response => {
         setSurveys(response.data);
+        setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching surveys:', error);
-        setError('Failed to load surveys. Please try again later.');
+        console.error("Error fetching surveys:", error);
+        setLoading(false);
       });
   }, []);
 
+  if (loading) return <div>Loading surveys...</div>;
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold mb-8 text-purple-700">Available Surveys 📋</h1>
-
-      {error && (
-        <p className="text-red-500 mb-4">{error}</p>
-      )}
-
-      <div className="w-full max-w-md space-y-4">
-        {surveys.length > 0 ? (
-          surveys.map((survey) => (
-            <div key={survey._id} className="p-4 bg-white rounded-lg shadow-md">
-              <h2 className="text-lg font-semibold text-gray-800">{survey.title}</h2>
-            </div>
-          ))
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">📋 Available Surveys</h1>
+      <ul className="space-y-4">
+        {surveys.length === 0 ? (
+          <li>No surveys available</li>
         ) : (
-          <p className="text-gray-500">No surveys available right now.</p>
+          surveys.map((survey: any, index: number) => (
+            <li key={index} className="border p-4 rounded shadow">
+              <h2 className="text-lg font-semibold">{survey.title}</h2>
+              <p>{survey.description}</p>
+            </li>
+          ))
         )}
-      </div>
+      </ul>
     </div>
   );
-}
+};
 
 export default Home;
