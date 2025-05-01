@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import.meta.env.VITE_API_URL
+const baseURL = import.meta.env.VITE_API_URL;
+
 function App() {
   const [surveys, setSurveys] = useState([]);
   const [error, setError] = useState(false);
@@ -8,7 +10,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/api/surveys`)
+    axios.get(`${baseURL}/api/surveys`)
       .then(res => {
         setSurveys(res.data);
       })
