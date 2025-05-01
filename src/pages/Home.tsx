@@ -1,41 +1,78 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+// src/pages/Home.tsx
+import { useEffect, useState } from 'react';
+import { fetchSurveys } from '../api/api';
 
-const Home = () => {
-  const [surveys, setSurveys] = useState([]);
+interface Survey {
+  _id: string;
+  title: string;
+  description: string;
+  questions: {
+    _id: string;
+    question: string;
+    options: string[];
+  }[];
+  reward: number;
+}
+
+export default function Home() {
+  const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    axios.get('https://earnbysurvey-backend.onrender.com/api/surveys')
-      .then(response => {
-        setSurveys(response.data);
+    async function loadSurveys() {
+      try {
+        console.log('Fetching surveys from:', import.meta.env.VITE_API_BASE_URL);
+        const data = await fetchSurveys();
+        console.log('Surveys fetched:', data);
+        setSurveys(data);
+      } catch (err) {
+        console.error('Error fetching surveys:', err);
+        setError('Failed to load surveys. Please try again later.');
+      } finally {
         setLoading(false);
-      })
-      .catch(error => {
-        console.error("Error fetching surveys:", error);
-        setLoading(false);
-      });
+      }
+    }
+    loadSurveys();
   }, []);
 
-  if (loading) return <div>Loading surveys...</div>;
+  if (loading) {
+    return (
+      <div className="text-center text-3xl mt-20 font-bold">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-3xl mt-20 text-red-500">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">📋 Available Surveys</h1>
-      <ul className="space-y-4">
-        {surveys.length === 0 ? (
-          <li>No surveys available</li>
-        ) : (
-          surveys.map((survey: any, index: number) => (
-            <li key={index} className="border p-4 rounded shadow">
-              <h2 className="text-lg font-semibold">{survey.title}</h2>
-              <p>{survey.description}</p>
-            </li>
-          ))
-        )}
-      </ul>
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-4xl font-bold mb-6 text-center">Available Surveys</h1>
+      {surveys.length === 0 ? (
+        <p className="text-center">No surveys available.</p>
+      ) : (
+        surveys.map((survey) => (
+          <div key={survey._id} className="border p-4 mb-6 rounded shadow-md">
+            <h2 className="text-2xl font-semibold mb-2">{survey.title}</h2>
+            <p className="mb-2">{survey.description}</p>
+            {survey.questions && survey.questions.length > 0 && (
+              <ul className="list-disc list-inside">
+                {survey.questions.map((q) => (
+                  <li key={q._id}>{q.question}</li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-2 text-green-600">Reward: {survey.reward} coins</p>
+          </div>
+        ))
+      )}
     </div>
   );
-};
-
-export default Home;
+}

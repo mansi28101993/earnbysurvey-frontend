@@ -1,10 +1,15 @@
-import axios from 'axios';
+const BASE_URL = import.meta.env.VITE_API_URL; // uses environment variable
 
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-});
-
-export const fetchSurveys = () => API.get('/api/surveys');
-export const submitSurvey = (surveyId: string, data: any) => API.post(`/api/surveys/${surveyId}/submit`, data);
-
-export default API;
+export async function fetchSurveys() {
+  try {
+    const response = await fetch(`${BASE_URL}/api/surveys`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch surveys');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching surveys:', error);
+    throw error;
+  }
+}
