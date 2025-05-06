@@ -1,24 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import.meta.env.VITE_API_URL
-const baseURL = import.meta.env.VITE_API_URL;
+import.meta.env.VITE_API_URL;
+
+
 
 function App() {
   const [surveys, setSurveys] = useState([]);
   const [error, setError] = useState(false);
 
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    axios.get(`${baseURL}/api/surveys`)
-      .then(res => {
-        setSurveys(res.data);
-      })
+    axios.get(`${import.meta.env.VITE_API_URL}/api/surveys`)
+      .then(res => setSurveys(res.data))
       .catch(err => {
         console.error('❌ Error fetching surveys:', err.message);
         setError(true);
-      })
-      .finally(() => setLoading(false));
+      });
   }, []);
 
   return (

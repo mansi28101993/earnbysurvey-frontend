@@ -1,9 +1,12 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const fetchSurveys = async () => {
-  const response = await fetch(`${BASE_URL}/api/surveys`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch surveys');
+  try {
+    const res = await fetch(`${BASE_URL}/api/surveys`);
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('API fetch failed:', error);
+    throw error;
   }
-  return response.json();
 };
